@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import requests
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -260,3 +261,287 @@ if __name__ == "__main__":
     print("   3. metrics_chart.png")
     print("   4. summary_table.png")
     print("\n🎯 Task 1 COMPLETE!\n")
+=======
+import pandas as pd
+from fpdf import FPDF
+from datetime import datetime
+
+# -----------------------------
+# READ CSV FILE
+# -----------------------------
+
+data = pd.read_csv("students.csv")
+
+# -----------------------------
+# CALCULATIONS
+# -----------------------------
+
+data["Total"] = (
+    data["Python"] +
+    data["Java"] +
+    data["DBMS"]
+)
+
+data["Average"] = round(
+    data["Total"] / 3,
+    2
+)
+
+# -----------------------------
+# GRADE SYSTEM
+# -----------------------------
+
+grades = []
+
+for avg in data["Average"]:
+
+    if avg >= 90:
+        grades.append("A")
+
+    elif avg >= 80:
+        grades.append("B")
+
+    elif avg >= 70:
+        grades.append("C")
+
+    else:
+        grades.append("D")
+
+data["Grade"] = grades
+
+# -----------------------------
+# PASS / FAIL
+# -----------------------------
+
+status_list = []
+
+for avg in data["Average"]:
+
+    if avg >= 40:
+        status_list.append("PASS")
+
+    else:
+        status_list.append("FAIL")
+
+data["Status"] = status_list
+
+# -----------------------------
+# RANK SYSTEM
+# -----------------------------
+
+data["Rank"] = data["Total"].rank(
+    ascending=False,
+    method="dense"
+).astype(int)
+
+data = data.sort_values(by="Rank")
+
+# -----------------------------
+# STATISTICS
+# -----------------------------
+
+total_students = len(data)
+
+passed_students = (
+    data["Status"] == "PASS"
+).sum()
+
+failed_students = (
+    data["Status"] == "FAIL"
+).sum()
+
+class_average = round(
+    data["Average"].mean(),
+    2
+)
+
+# -----------------------------
+# TOPPER
+# -----------------------------
+
+topper = data.iloc[0]
+
+# -----------------------------
+# CREATE PDF
+# -----------------------------
+
+pdf = FPDF()
+
+pdf.add_page()
+
+# -----------------------------
+# TITLE
+# -----------------------------
+
+pdf.set_font("Arial", "B", 20)
+
+pdf.set_text_color(0, 51, 102)
+
+pdf.cell(
+    200,
+    10,
+    "STUDENT REPORT",
+    ln=True,
+    align="C"
+)
+
+pdf.ln(5)
+
+# DATE
+
+pdf.set_font("Arial", "", 11)
+
+current_time = datetime.now().strftime(
+    "%d-%m-%Y %I:%M %p"
+)
+
+pdf.cell(
+    200,
+    10,
+    f"Generated On: {current_time}",
+    ln=True
+)
+
+pdf.ln(8)
+
+# -----------------------------
+# TABLE HEADER
+# -----------------------------
+
+pdf.set_fill_color(0, 102, 204)
+
+pdf.set_text_color(255, 255, 255)
+
+pdf.set_font("Arial", "B", 10)
+
+pdf.cell(30, 10, "Name", 1, 0, "C", True)
+pdf.cell(20, 10, "Py", 1, 0, "C", True)
+pdf.cell(20, 10, "Java", 1, 0, "C", True)
+pdf.cell(20, 10, "DBMS", 1, 0, "C", True)
+pdf.cell(22, 10, "Total", 1, 0, "C", True)
+pdf.cell(22, 10, "Avg", 1, 0, "C", True)
+pdf.cell(18, 10, "Grade", 1, 0, "C", True)
+pdf.cell(25, 10, "Status", 1, 0, "C", True)
+pdf.cell(15, 10, "Rank", 1, 1, "C", True)
+
+# -----------------------------
+# TABLE DATA
+# -----------------------------
+
+pdf.set_font("Arial", "", 10)
+
+pdf.set_text_color(0, 0, 0)
+
+for index, row in data.iterrows():
+
+    pdf.cell(30, 10, str(row["Name"]), 1)
+    pdf.cell(20, 10, str(row["Python"]), 1)
+    pdf.cell(20, 10, str(row["Java"]), 1)
+    pdf.cell(20, 10, str(row["DBMS"]), 1)
+    pdf.cell(22, 10, str(row["Total"]), 1)
+    pdf.cell(22, 10, str(row["Average"]), 1)
+    pdf.cell(18, 10, str(row["Grade"]), 1)
+    pdf.cell(25, 10, str(row["Status"]), 1)
+    pdf.cell(15, 10, str(row["Rank"]), 1)
+
+    pdf.ln()
+
+# -----------------------------
+# TOPPER SECTION
+# -----------------------------
+
+pdf.ln(10)
+
+pdf.set_font("Arial", "B", 14)
+
+pdf.set_text_color(0, 51, 102)
+
+pdf.cell(
+    200,
+    10,
+    "TOPPER DETAILS",
+    ln=True
+)
+
+pdf.set_font("Arial", "", 12)
+
+pdf.set_text_color(0, 0, 0)
+
+pdf.cell(
+    200,
+    10,
+    f"Topper Name : {topper['Name']}",
+    ln=True
+)
+
+pdf.cell(
+    200,
+    10,
+    f"Total Marks : {topper['Total']}",
+    ln=True
+)
+
+pdf.cell(
+    200,
+    10,
+    f"Grade : {topper['Grade']}",
+    ln=True
+)
+
+# -----------------------------
+# STATISTICS
+# -----------------------------
+
+pdf.ln(8)
+
+pdf.set_font("Arial", "B", 14)
+
+pdf.set_text_color(0, 51, 102)
+
+pdf.cell(
+    200,
+    10,
+    "CLASS STATISTICS",
+    ln=True
+)
+
+pdf.set_font("Arial", "", 12)
+
+pdf.set_text_color(0, 0, 0)
+
+pdf.cell(
+    200,
+    10,
+    f"Total Students : {total_students}",
+    ln=True
+)
+
+pdf.cell(
+    200,
+    10,
+    f"Passed Students : {passed_students}",
+    ln=True
+)
+
+pdf.cell(
+    200,
+    10,
+    f"Failed Students : {failed_students}",
+    ln=True
+)
+
+pdf.cell(
+    200,
+    10,
+    f"Class Average : {class_average}",
+    ln=True
+)
+
+# -----------------------------
+# SAVE PDF
+# -----------------------------
+
+pdf.output("report.pdf")
+
+print("Professional PDF Generated Successfully!")
+>>>>>>> c22d016 (Task 2 completed)
